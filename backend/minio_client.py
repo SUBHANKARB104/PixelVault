@@ -3,11 +3,13 @@ from minio.error import S3Error
 import os
 
 # ── MinIO connection ──────────────
+secure_env = os.getenv("MINIO_SECURE", "False").lower() in ("true", "1", "t")
+
 minio_client = Minio(
     endpoint   = os.getenv("MINIO_ENDPOINT", "localhost:9000"),
     access_key = os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
     secret_key = os.getenv("MINIO_SECRET_KEY", "minioadmin123"),
-    secure     = False  # True if using HTTPS
+    secure     = secure_env
 )
 
 BUCKET_NAME = os.getenv("MINIO_BUCKET", "my-images")
@@ -34,7 +36,12 @@ def upload_file(file_data, filename: str, content_type: str, size: int) -> str:
             content_type = content_type
         )
         # Return public URL
-        url = f"http://{os.getenv('MINIO_ENDPOINT', 'localhost:9000')}/{BUCKET_NAME}/{filename}"
+        public_url_base = os.getenv(
+            "MINIO_PUBLIC_URL", 
+            f"http://{os.getenv('MINIO_ENDPOINT', 'localhost:9000')}/{BUCKET_NAME}"
+        )
+        public_url_base = public_url_base.rstrip('/')
+        url = f"{public_url_base}/{filename}"
         return url
     except S3Error as e:
         raise Exception(f"MinIO upload failed: {e}")
