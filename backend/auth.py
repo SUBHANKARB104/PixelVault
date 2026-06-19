@@ -13,7 +13,20 @@ SECRET_KEY   = os.getenv("SECRET_KEY", "changethissecretkey123456789")
 ALGORITHM    = "HS256"
 TOKEN_EXPIRE = 60 * 24  # 24 hours in minutes
 
-pwd_context   = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+def hash_password(password: str):
+    return pwd_context.hash(password[:72])
+
+
+def verify_password(password: str, hashed: str):
+    return pwd_context.verify(password[:72], hashed)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # ── Password helpers ──────────────
