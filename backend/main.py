@@ -31,6 +31,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+@app.get("/")
+def home():
+    return {
+        "status": "running",
+        "message": "PixelVault API is live"
+    }
+
 # ── CORS (allow frontend) ────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
