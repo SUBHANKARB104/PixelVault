@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageVault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5f3ef;
+            --surface: #ffffff;
+            --surface2: #eceae5;
+            --border: #dedad3;
+            --text: #1c1a17;
+            --muted: #8a8680;
+            --accent: #2d5f4f;
+            --accent-lt: #e8f2ee;
+            --accent-h: #234d3f;
+            --danger: #c0392b;
+            --danger-lt: #fdf0ee;
+            --warn: #b35c00;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ─── SCREENS ─── */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ══════════════════════════════
+   AUTH
+══════════════════════════════ */
+        #auth-screen {
+            min-height: 100vh;
+            align-items: stretch;
+        }
+
+        .auth-left {
+            width: 420px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 48px 44px;
+        }
+
+        .auth-right {
+            flex: 1;
+            background: var(--accent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-right::before {
+            content: '';
+            position: absolute;
+            inset: -60px;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(255, 255, 255, 0.03) 40px,
+                    rgba(255, 255, 255, 0.03) 41px);
+        }
+
+        .auth-right-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            max-width: 340px;
+        }
+
+        .auth-right-sub {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            position: relative;
+            z-index: 1;
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        .auth-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-pill {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-pill::before {
+            content: '✓';
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 44px;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo-mark svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .auth-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .auth-sub {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        .form-field {
+            margin-bottom: 16px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--muted);
+            margin-bottom: 7px;
+        }
+
+        .form-field input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 11px 13px;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .form-field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(45, 95, 79, 0.1);
+        }
+
+        .form-field input::placeholder {
+            color: var(--muted);
+            opacity: 0.5;
+        }
+
+        .btn-main {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.15s, transform 0.1s;
+            position: relative;
+        }
+
+        .btn-main:hover {
+            background: var(--accent-h);
+        }
+
+        .btn-main:active {
+            transform: scale(0.99);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto;
+        }
+
+        .btn-main.loading .btn-label {
+            display: none;
+        }
+
+        .btn-main.loading .btn-spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alert {
+            border-radius: var(--radius-sm);
+            padding: 10px 13px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .alert.error {
+            background: var(--danger-lt);
+            color: var(--danger);
+            border: 1px solid #f5c6c2;
+        }
+
+        .alert.success {
+            background: var(--accent-lt);
+            color: var(--accent);
+            border: 1px solid #bdd8d0;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .auth-switch a {
+            color: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .form-view {
+            display: none;
+        }
+
+        .form-view.active {
+            display: block;
+        }
+
+        /* ══════════════════════════════
+   APP SHELL
+══════════════════════════════ */
+        #app-screen {
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: 58px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .topbar .logo-text {
+            flex: 1;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px 5px 5px;
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .avatar {
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .btn-ghost {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 6px 14px;
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-upload {
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 7px 16px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s;
+        }
+
+        .btn-upload:hover {
+            background: var(--accent-h);
+        }
+
+        .btn-upload svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ══════════════════════════════
+   LAYOUT
+══════════════════════════════ */
+        .app-body {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .nav-item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--accent-lt);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .nav-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--muted);
+            padding: 16px 12px 6px;
+            opacity: 0.7;
+        }
+
+        .main {
+            flex: 1;
+            padding: 28px;
+            overflow-y: auto;
+        }
+
+        /* ══════════════════════════════
+   PANELS
+══════════════════════════════ */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .panel-sub {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        /* ══════════════════════════════
+   STATS
+══════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat-note {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ══════════════════════════════
+   GALLERY
+══════════════════════════════ */
+        .gallery-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 9px 13px;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+            opacity: 0.5;
+        }
+
+        .view-btns {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .vbtn {
+            background: none;
+            border: none;
+            padding: 8px 11px;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all 0.15s;
+        }
+
+        .vbtn.active {
+            background: var(--accent-lt);
+            color: var(--accent);
+        }
+
+        .vbtn svg {
+            width: 15px;
+            height: 15px;
+            display: block;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 14px;
+        }
+
+        .gallery-grid.list {
+            grid-template-columns: 1fr;
+        }
+
+        .img-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+            box-shadow: var(--shadow);
+        }
+
+        .img-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-thumb-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            display: block;
+            background: var(--surface2);
+            transition: transform 0.2s;
+        }
+
+        .img-card:hover .img-thumb {
+            transform: scale(1.04);
+        }
+
+        .gallery-grid.list .img-thumb {
+            width: 52px;
+            height: 52px;
+            aspect-ratio: unset;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .gallery-grid.list .img-card {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            gap: 14px;
+            transform: none;
+        }
+
+        .gallery-grid.list .img-card:hover {
+            transform: none;
+        }
+
+        .gallery-grid.list .img-thumb-wrap {
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .img-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.45));
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            padding: 10px;
+        }
+
+        .img-card:hover .img-overlay {
+            opacity: 1;
+        }
+
+        .ov-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 4px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .ov-btn:hover {
+            background: #fff;
+        }
+
+        .ov-btn.del:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .img-info {
+            padding: 10px 12px;
+        }
+
+        .gallery-grid.list .img-info {
+            flex: 1;
+            padding: 0;
+            min-width: 0;
+        }
+
+        .img-name {
+            font-size: 13px;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .img-meta {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .gallery-grid.list .img-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .sm-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .sm-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .sm-btn.del:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .sm-btn svg {
+            width: 11px;
+            height: 11px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--surface2);
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+        }
+
+        .empty-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--muted);
+        }
+
+        .empty-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .empty-sub {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ══════════════════════════════
+   UPLOAD PANEL
+══════════════════════════════ */
+        .upload-zone {
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 52px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 24px;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.over {
+            border-color: var(--accent);
+            background: var(--accent-lt);
+        }
+
+        .upload-zone-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--accent-lt);
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+            border: 1px solid rgba(45, 95, 79, 0.15);
+        }
+
+        .upload-zone-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--accent);
+        }
+
+        .upload-zone-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .upload-zone-hint {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .upload-zone-hint b {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Queue */
+        .queue-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .queue-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .btn-upload-all {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 20px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-upload-all:hover {
+            background: var(--accent-h);
+        }
+
+        .btn-upload-all:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .q-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 13px 15px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 9px;
+            box-shadow: var(--shadow);
+        }
+
+        .q-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: var(--surface2);
+            flex-shrink: 0;
+        }
+
+        .q-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .q-name {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 5px;
+        }
+
+        .q-meta {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .q-bar {
+            height: 3px;
+            background: var(--surface2);
+            border-radius: 99px;
+            margin-top: 7px;
+            overflow: hidden;
+        }
+
+        .q-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 99px;
+            width: 0;
+            transition: width 0.25s ease;
+        }
+
+        .q-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 99px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .s-pending {
+            background: var(--surface2);
+            color: var(--muted);
+        }
+
+        .s-uploading {
+            background: var(--accent-lt);
+            color: var(--accent);
+        }
+
+        .s-done {
+            background: #e6f7ec;
+            color: #1a7a3f;
+        }
+
+        .s-error {
+            background: var(--danger-lt);
+            color: var(--danger);
+        }
+
+        .q-remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+
+        .q-remove:hover {
+            color: var(--danger);
+        }
+
+        .q-remove svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+        }
+
+        /* ══════════════════════════════
+   LIGHTBOX
+══════════════════════════════ */
+        .lb-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 26, 23, 0.85);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .lb-overlay.open {
+            display: flex;
+        }
+
+        .lb-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            max-width: 820px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .lb-img {
+            width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+            background: var(--surface2);
+            display: block;
+        }
+
+        .lb-footer {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lb-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .lb-meta {
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            gap: 16px;
+        }
+
+        .lb-meta span::before {
+            content: '·';
+            margin-right: 8px;
+            opacity: 0.4;
+        }
+
+        .lb-meta span:first-child::before {
+            content: '';
+            margin: 0;
+        }
+
+        .lb-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lb-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(28, 26, 23, 0.4);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: #fff;
+            transition: background 0.15s;
+        }
+
+        .lb-close:hover {
+            background: rgba(28, 26, 23, 0.7);
+        }
+
+        .lb-close svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ══════════════════════════════
+   LOADER OVERLAY
+══════════════════════════════ */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(245, 243, 239, 0.7);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .loader-overlay.visible {
+            display: flex;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .loader-msg {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* ══════════════════════════════
+   TOAST
+══════════════════════════════ */
+        .toast-wrap {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--text);
+            color: #f5f3ef;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 240px;
+            max-width: 340px;
+            pointer-events: all;
+            animation: tUp 0.22s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.err {
+            background: var(--danger);
+        }
+
+        .toast-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #8fffb4;
+            flex-shrink: 0;
+        }
+
+        .toast.err .toast-dot {
+            background: #ffcccc;
+        }
+
+        @keyframes tUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ══════════════════════════════
+   SETTINGS PANEL
+══════════════════════════════ */
+        .settings-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .settings-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-key {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .settings-val {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .endpoint-tag {
+            background: var(--accent-lt);
+            color: var(--accent);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        /* ── file input hidden ── */
+        #file-input {
+            display: none;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ════════════════════════════
+     AUTH SCREEN
+════════════════════════════ -->
+    <div id="auth-screen" class="screen active">
+
+        <div class="auth-left">
+            <div class="logo">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="3" y="3" width="18" height="18" rx="3" />
+                        <circle cx="8.5" cy="8.5" r="2" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                </div>
+                <span class="logo-text">ImageVault</span>
+            </div>
+
+            <!-- LOGIN -->
+            <div id="view-login" class="form-view active">
+                <h1 class="auth-title">Sign in</h1>
+                <p class="auth-sub">Welcome back to your vault</p>
+                <div id="login-alert" class="alert error"></div>
+                <div class="form-field">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="form-field">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button class="btn-main" id="btn-login" onclick="handleLogin()">
+                    <span class="btn-label">Sign in</span>
+                    <div class="btn-spinner"></div>
+                </button>
+                <p class="auth-switch">No account? <a onclick="showView('register')">Create one</a></p>
+            </div>
+
+            <!-- REGISTER -->
+            <div id="view-register" class="form-view">
+                <h1 class="auth-title">Create account</h1>
+                <p class="auth-sub">Start uploading your images</p>
+                <div id="reg-alert" class="alert error"></div>
+                <div class="form-field">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" placeholder="Your name">
+                </div>
+                <div class="form-field">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" placeholder="you@example.com">
+                </div>
+                <div class="form-field">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Min. 8 characters">
+                </div>
+                <button class="btn-main" id="btn-register" onclick="handleRegister()">
+                    <span class="btn-label">Create account</span>
+                    <div class="btn-spinner"></div>
+                </button>
+                <p class="auth-switch">Already have one? <a onclick="showView('login')">Sign in</a></p>
+            </div>
+        </div>
+
+        <div class="auth-right">
+            <div class="auth-right-title">Your images.<br>Your cloud.<br>Always yours.</div>
+            <p class="auth-right-sub">Store, organize, and access your images from anywhere — powered by MinIO and
+                FastAPI.</p>
+            <div class="auth-stack">
+                <div class="auth-pill">Backed by MinIO object storage</div>
+                <div class="auth-pill">Image URLs stored in PostgreSQL</div>
+                <div class="auth-pill">JWT-secured API with FastAPI</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ════════════════════════════
+     APP SCREEN
+════════════════════════════ -->
+    <div id="app-screen" class="screen">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="logo">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+                        <rect x="3" y="3" width="18" height="18" rx="3" />
+                        <circle cx="8.5" cy="8.5" r="2" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                </div>
+                <span class="logo-text">ImageVault</span>
+            </div>
+
+            <div class="topbar-right">
+                <button class="btn-upload" onclick="goToUpload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload
+                </button>
+                <div class="user-badge">
+                    <div class="avatar" id="top-avatar">?</div>
+                    <span id="top-name">User</span>
+                </div>
+                <button class="btn-ghost" onclick="handleLogout()">Sign out</button>
+            </div>
+        </div>
+
+        <div class="app-body">
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <p class="nav-section-label">Library</p>
+                <button class="nav-item active" data-panel="gallery" onclick="switchPanel('gallery')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round">
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                    Gallery
+                </button>
+                <button class="nav-item" data-panel="upload" onclick="switchPanel('upload')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload
+                </button>
+                <p class="nav-section-label">Account</p>
+                <button class="nav-item" data-panel="settings" onclick="switchPanel('settings')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    Settings
+                </button>
+            </div>
+
+            <div class="main">
+
+                <!-- GALLERY PANEL -->
+                <div id="panel-gallery" class="panel active">
+                    <h1 class="panel-title">My Gallery</h1>
+                    <p class="panel-sub" id="gallery-sub">Loading your images…</p>
+
+                    <div class="stats-row">
+                        <div class="stat">
+                            <div class="stat-label">Total Images</div>
+                            <div class="stat-val" id="stat-count">—</div>
+                            <div class="stat-note">in your vault</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Storage Used</div>
+                            <div class="stat-val" id="stat-size">— MB</div>
+                            <div class="stat-note">MinIO / S3</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Bucket</div>
+                            <div class="stat-val" style="font-size:16px;padding-top:5px" id="stat-bucket">—</div>
+                            <div class="stat-note">object storage</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Last Upload</div>
+                            <div class="stat-val" style="font-size:15px;padding-top:5px" id="stat-last">—</div>
+                            <div class="stat-note">most recent</div>
+                        </div>
+                    </div>
+
+                    <div class="gallery-bar">
+                        <input class="search-input" type="text" placeholder="Search by filename…"
+                            oninput="filterGallery(this.value)" id="search-input">
+                        <div class="view-btns">
+                            <button class="vbtn active" id="vbtn-grid" onclick="setView('grid')" title="Grid">
+                                <svg viewBox="0 0 15 15" fill="currentColor">
+                                    <rect x="1" y="1" width="5" height="5" rx="1" />
+                                    <rect x="9" y="1" width="5" height="5" rx="1" />
+                                    <rect x="1" y="9" width="5" height="5" rx="1" />
+                                    <rect x="9" y="9" width="5" height="5" rx="1" />
+                                </svg>
+                            </button>
+                            <button class="vbtn" id="vbtn-list" onclick="setView('list')" title="List">
+                                <svg viewBox="0 0 15 15" fill="currentColor">
+                                    <rect x="1" y="2" width="13" height="2.5" rx="1" />
+                                    <rect x="1" y="6.5" width="13" height="2.5" rx="1" />
+                                    <rect x="1" y="11" width="13" height="2.5" rx="1" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="gallery" class="gallery-grid"></div>
+                </div>
+
+                <!-- UPLOAD PANEL -->
+                <div id="panel-upload" class="panel">
+                    <h1 class="panel-title">Upload Images</h1>
+                    <p class="panel-sub">Files are uploaded to MinIO — the URL is then saved to PostgreSQL</p>
+
+                    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+                        ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+                        <input type="file" id="file-input" multiple accept="image/*" onchange="onFilePick(event)">
+                        <div class="upload-zone-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                        </div>
+                        <p class="upload-zone-title">Drop images here to upload</p>
+                        <p class="upload-zone-hint">or <b>click to browse</b> &nbsp;·&nbsp; JPG, PNG, GIF, WebP, AVIF
+                        </p>
+                    </div>
+
+                    <div id="queue-wrap" style="display:none">
+                        <div class="queue-header">
+                            <span class="queue-title">Upload queue <span id="queue-count"
+                                    style="color:var(--muted);font-weight:400;font-size:13px"></span></span>
+                            <button class="btn-upload-all" id="btn-upload-all" onclick="startUpload()">Upload
+                                All</button>
+                        </div>
+                        <div id="queue"></div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS PANEL -->
+                <div id="panel-settings" class="panel">
+                    <h1 class="panel-title">Settings & API Info</h1>
+                    <p class="panel-sub">Reference for connecting your FastAPI backend</p>
+
+                    <div class="settings-card">
+                        <h3>API Endpoints (FastAPI)</h3>
+                        <div class="settings-row">
+                            <span class="settings-key">Register</span>
+                            <span class="endpoint-tag">POST /auth/register</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Login</span>
+                            <span class="endpoint-tag">POST /auth/login</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Get Images</span>
+                            <span class="endpoint-tag">GET /images</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Upload Image</span>
+                            <span class="endpoint-tag">POST /images/upload</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Delete Image</span>
+                            <span class="endpoint-tag">DELETE /images/{id}</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Session</h3>
+                        <div class="settings-row">
+                            <span class="settings-key">Logged in as</span>
+                            <span class="settings-val" id="s-email">—</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Token stored in</span>
+                            <span class="settings-val">localStorage (key: <code>token</code>)</span>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-key">Auth header</span>
+                            <span class="settings-val"><code>Authorization: Bearer &lt;token&gt;</code></span>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Backend URL</h3>
+                        <div class="settings-row">
+                            <span class="settings-key">Current base URL</span>
+                            <span class="settings-val" id="s-baseurl">—</span>
+                        </div>
+                        <div class="settings-row" style="display:block;padding-top:12px">
+                            <div class="form-field" style="margin:0">
+                                <label>Change base URL</label>
+                                <div style="display:flex;gap:8px;margin-top:7px">
+                                    <input type="text" id="baseurl-input"
+                                        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-family:'Lato',sans-serif;font-size:14px;color:var(--text);outline:none"
+                                        placeholder="http://localhost:8000">
+                                    <button class="btn-upload-all" style="white-space:nowrap"
+                                        onclick="saveBaseUrl()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /main -->
+        </div><!-- /app-body -->
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div class="lb-overlay" id="lightbox">
+        <div class="lb-box">
+            <button class="lb-close" onclick="closeLb()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+            <img id="lb-img" class="lb-img" src="" alt="">
+            <div class="lb-footer">
+                <div>
+                    <div id="lb-name" class="lb-name"></div>
+                    <div id="lb-meta" class="lb-meta"></div>
+                </div>
+                <div class="lb-actions">
+                    <button class="sm-btn" onclick="downloadCurrent()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Download
+                    </button>
+                    <button class="sm-btn del" onclick="deleteCurrent()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader-overlay" id="loader">
+        <div class="spinner"></div>
+        <span class="loader-msg" id="loader-msg">Loading…</span>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-wrap" id="toasts"></div>
+
+    <!-- ════════════════════════════
+     JAVASCRIPT
+════════════════════════════ -->
+    <script>
+        // ╔══════════════════════════════════════╗
+        // ║  CONFIG — point this at your FastAPI ║
+        // ╚══════════════════════════════════════╝
+        let API_BASE = localStorage.getItem('api_base') || 'https://YOUR-RENDER-APP.onrender.com';
+
+        // ─── state ───────────────────────────────
+        let token = localStorage.getItem('token') || null;
+        let currentUser = null;
+        let images = [];        // full list from API
+        let filtered = [];      // after search filter
+        let currentView = 'grid';
+        let uploadQueue = [];
+        let lbCurrent = null;
+
+        // ─── boot ────────────────────────────────
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('baseurl-input').value = API_BASE;
+            document.getElementById('s-baseurl').textContent = API_BASE;
+            if (token) initApp();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeLb();
+            if (e.key === 'Enter') {
+                if (document.getElementById('view-login').classList.contains('active')) handleLogin();
+            }
+        });
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  API HELPERS                         ║
+        // ╚══════════════════════════════════════╝
+
+        async function apiFetch(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            const res = await fetch(API_BASE + path, { ...opts, headers });
+            if (res.status === 401) { handleLogout(); throw new Error('Unauthorized'); }
+            return res;
+        }
+
+        // ──────────────────────────────────────────
+        // POST /auth/register
+        // Body:  { name, email, password }
+        // Returns: { id, name, email }
+        // ──────────────────────────────────────────
+        async function handleRegister() {
+            const name = v('reg-name'), email = v('reg-email'), password = v('reg-password');
+            if (!name || !email || password.length < 8) {
+                showAlert('reg-alert', !name || !email ? 'Please fill in all fields.' : 'Password must be at least 8 characters.');
+                return;
+            }
+            btnLoad('btn-register', true);
+            try {
+                const res = await apiFetch('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) { showAlert('reg-alert', data.detail || 'Registration failed.'); return; }
+                toast('Account created! Please sign in.');
+                showView('login');
+            } catch (e) {
+                showAlert('reg-alert', 'Cannot reach server. Is FastAPI running at ' + API_BASE + '?');
+            } finally {
+                btnLoad('btn-register', false);
+            }
+        }
+
+        // ──────────────────────────────────────────
+        // POST /auth/login
+        // Body:  { email, password }   (or use OAuth2 form: username + password)
+        // Returns: { access_token, token_type, user: { id, name, email } }
+        // ──────────────────────────────────────────
+        async function handleLogin() {
+            const email = v('login-email'), password = v('login-password');
+            if (!email || !password) { showAlert('login-alert', 'Enter your email and password.'); return; }
+            btnLoad('btn-login', true);
+            try {
+                const res = await apiFetch('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) { showAlert('login-alert', data.detail || 'Login failed.'); return; }
+                token = data.access_token;
+                localStorage.setItem('token', token);
+                currentUser = data.user;
+                hideAlert('login-alert');
+                initApp();
+            } catch (e) {
+                showAlert('login-alert', 'Cannot reach server. Is FastAPI running at ' + API_BASE + '?');
+            } finally {
+                btnLoad('btn-login', false);
+            }
+        }
+
+        function handleLogout() {
+            token = null; currentUser = null;
+            localStorage.removeItem('token');
+            images = []; filtered = []; uploadQueue = [];
+            switchScreen('auth');
+            showView('login');
+        }
+
+        // ──────────────────────────────────────────
+        // GET /images
+        // Header: Authorization: Bearer <token>
+        // Returns: [ { id, filename, url, size_bytes, mime_type, created_at }, ... ]
+        // ──────────────────────────────────────────
+        async function loadImages() {
+            showLoader('Fetching images…');
+            try {
+                const res = await apiFetch('/images');
+                if (!res.ok) throw new Error();
+                images = await res.json();
+                filtered = [...images];
+                renderGallery();
+                updateStats();
+                document.getElementById('gallery-sub').textContent =
+                    images.length + ' image' + (images.length !== 1 ? 's' : '') + ' in your vault';
+            } catch (e) {
+                toast('Could not load images. Check your backend.', true);
+                document.getElementById('gallery-sub').textContent = 'Could not load images.';
+            } finally {
+                hideLoader();
+            }
+        }
+
+        // ──────────────────────────────────────────
+        // POST /images/upload
+        // Header: Authorization: Bearer <token>
+        // Body:   multipart/form-data  — field name: "file"
+        // Returns: { id, filename, url, size_bytes, mime_type, created_at }
+        //
+        // FastAPI flow:
+        //   1. Receive file
+        //   2. Upload to MinIO using minio-py / boto3
+        //   3. Get back the public/presigned URL
+        //   4. INSERT into PostgreSQL: (user_id, filename, url, size_bytes, mime_type)
+        //   5. Return the saved record
+        // ──────────────────────────────────────────
+        async function uploadFile(qItem) {
+            const formData = new FormData();
+            formData.append('file', qItem.file);
+
+            const headers = {};
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', API_BASE + '/images/upload');
+                Object.entries(headers).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+
+                xhr.upload.onprogress = e => {
+                    if (e.lengthComputable) {
+                        qItem.progress = Math.round((e.loaded / e.total) * 100);
+                        updateQItem(qItem);
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        let msg = 'Upload failed';
+                        try { msg = JSON.parse(xhr.responseText).detail || msg; } catch { }
+                        reject(new Error(msg));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.send(formData);
+            });
+        }
+
+        // ──────────────────────────────────────────
+        // DELETE /images/{id}
+        // Header: Authorization: Bearer <token>
+        // FastAPI flow:
+        //   1. Find record by id (and verify ownership)
+        //   2. Delete object from MinIO
+        //   3. DELETE row from PostgreSQL
+        //   4. Return { success: true }
+        // ──────────────────────────────────────────
+        async function deleteImage(id) {
+            try {
+                const res = await apiFetch('/images/' + id, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                images = images.filter(i => i.id !== id);
+                filtered = filtered.filter(i => i.id !== id);
+                renderGallery();
+                updateStats();
+                toast('Image deleted.');
+            } catch (e) {
+                toast('Delete failed.', true);
+            }
+        }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  APP INIT                            ║
+        // ╚══════════════════════════════════════╝
+        async function initApp() {
+            if (!currentUser) {
+                // Optionally: GET /auth/me  to hydrate user from token
+                // For now, decode JWT payload or trust localStorage
+                try {
+                    const res = await apiFetch('/auth/me');
+                    if (res.ok) currentUser = await res.json();
+                } catch { }
+            }
+            switchScreen('app');
+            if (currentUser) {
+                const initials = (currentUser.name || currentUser.email || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+                document.getElementById('top-avatar').textContent = initials;
+                document.getElementById('top-name').textContent = (currentUser.name || currentUser.email || '').split(' ')[0];
+                document.getElementById('s-email').textContent = currentUser.email || '—';
+            }
+            await loadImages();
+        }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  GALLERY                             ║
+        // ╚══════════════════════════════════════╝
+        function renderGallery() {
+            const el = document.getElementById('gallery');
+            if (!filtered.length) {
+                el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </div>
+      <p class="empty-title">No images found</p>
+      <p class="empty-sub">Upload some images to fill your vault</p>
+    </div>`;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                el.innerHTML = filtered.map(img => `
+      <div class="img-card" onclick="openLb(${img.id})">
+        <div class="img-thumb-wrap">
+          <img class="img-thumb" src="${img.url}" alt="${img.filename}" loading="lazy"
+               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23eceae5%22 width=%22100%22 height=%22100%22/></svg>'">
+          <div class="img-overlay">
+            <button class="ov-btn" onclick="event.stopPropagation();downloadImg(${img.id})">↓ Save</button>
+            <button class="ov-btn del" onclick="event.stopPropagation();confirmDelete(${img.id})">Delete</button>
+          </div>
+        </div>
+        <div class="img-info">
+          <div class="img-name">${img.filename}</div>
+          <div class="img-meta">${fmtSize(img.size_bytes)} &nbsp;·&nbsp; ${fmtDate(img.created_at)}</div>
+        </div>
+      </div>`).join('');
+            } else {
+                el.innerHTML = filtered.map(img => `
+      <div class="img-card">
+        <div class="img-thumb-wrap" style="border-radius:6px;overflow:hidden;flex-shrink:0" onclick="openLb(${img.id})">
+          <img class="img-thumb" src="${img.url}" alt="${img.filename}" loading="lazy"
+               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23eceae5%22 width=%22100%22 height=%22100%22/></svg>'">
+        </div>
+        <div class="img-info" onclick="openLb(${img.id})">
+          <div class="img-name">${img.filename}</div>
+          <div class="img-meta">${fmtSize(img.size_bytes)} &nbsp;·&nbsp; ${img.mime_type} &nbsp;·&nbsp; ${fmtDate(img.created_at)}</div>
+        </div>
+        <div class="img-actions">
+          <button class="sm-btn" onclick="downloadImg(${img.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save
+          </button>
+          <button class="sm-btn del" onclick="confirmDelete(${img.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Delete
+          </button>
+        </div>
+      </div>`).join('');
+            }
+        }
+
+        function filterGallery(q) {
+            filtered = q ? images.filter(i => i.filename.toLowerCase().includes(q.toLowerCase())) : [...images];
+            renderGallery();
+        }
+
+        function setView(v) {
+            currentView = v;
+            document.getElementById('gallery').className = 'gallery-grid' + (v === 'list' ? ' list' : '');
+            document.getElementById('vbtn-grid').classList.toggle('active', v === 'grid');
+            document.getElementById('vbtn-list').classList.toggle('active', v === 'list');
+            renderGallery();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-count').textContent = images.length;
+            const total = images.reduce((a, b) => a + (b.size_bytes || 0), 0);
+            document.getElementById('stat-size').textContent = fmtSize(total);
+            document.getElementById('stat-bucket').textContent = 'my-images';
+            document.getElementById('stat-last').textContent = images.length ? fmtDate(images[0].created_at) : '—';
+        }
+
+        function downloadImg(id) {
+            const img = images.find(i => i.id === id);
+            if (!img) return;
+            const a = document.createElement('a');
+            a.href = img.url; a.download = img.filename; a.target = '_blank';
+            a.click();
+        }
+
+        function confirmDelete(id) {
+            if (confirm('Delete this image? This will remove it from MinIO and PostgreSQL.')) deleteImage(id);
+        }
+
+        // ── Lightbox ──────────────────────────────
+        function openLb(id) {
+            const img = images.find(i => i.id === id);
+            if (!img) return;
+            lbCurrent = img;
+            document.getElementById('lb-img').src = img.url;
+            document.getElementById('lb-name').textContent = img.filename;
+            document.getElementById('lb-meta').innerHTML =
+                `<span>${fmtSize(img.size_bytes)}</span><span>${img.mime_type}</span><span>${fmtDate(img.created_at)}</span>`;
+            document.getElementById('lightbox').classList.add('open');
+        }
+
+        function closeLb() { document.getElementById('lightbox').classList.remove('open'); lbCurrent = null; }
+        document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) closeLb(); });
+        function downloadCurrent() { if (lbCurrent) downloadImg(lbCurrent.id); }
+        function deleteCurrent() { if (lbCurrent) { closeLb(); confirmDelete(lbCurrent.id); } }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  UPLOAD                              ║
+        // ╚══════════════════════════════════════╝
+        function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('over'); }
+        function onDragLeave() { document.getElementById('upload-zone').classList.remove('over'); }
+        function onDrop(e) {
+            e.preventDefault();
+            document.getElementById('upload-zone').classList.remove('over');
+            addToQueue([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
+        }
+        function onFilePick(e) { addToQueue([...e.target.files]); e.target.value = ''; }
+
+        function addToQueue(files) {
+            files.forEach(file => {
+                uploadQueue.push({ id: crypto.randomUUID(), file, progress: 0, status: 'pending', preview: URL.createObjectURL(file) });
+            });
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const wrap = document.getElementById('queue-wrap');
+            const el = document.getElementById('queue');
+            if (!uploadQueue.length) { wrap.style.display = 'none'; return; }
+            wrap.style.display = 'block';
+            document.getElementById('queue-count').textContent = `(${uploadQueue.length})`;
+            document.getElementById('btn-upload-all').disabled = !uploadQueue.some(i => i.status === 'pending');
+
+            el.innerHTML = uploadQueue.map(q => `
+    <div class="q-item" id="qi-${q.id}">
+      <img class="q-thumb" src="${q.preview}" alt="${q.file.name}">
+      <div class="q-info">
+        <div class="q-name">${q.file.name}</div>
+        <div class="q-meta">${fmtSize(q.file.size)} &nbsp;·&nbsp; ${q.file.type}</div>
+        <div class="q-bar" style="${q.status !== 'uploading' ? 'display:none' : ''}">
+          <div class="q-fill" id="qf-${q.id}" style="width:${q.progress}%"></div>
+        </div>
+      </div>
+      <span class="q-status s-${q.status}">${{ pending: 'Pending', uploading: 'Uploading', done: 'Done', error: 'Error' }[q.status]}</span>
+      ${q.status !== 'uploading' ? `<button class="q-remove" onclick="removeQItem('${q.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>` : ''}
+    </div>`).join('');
+        }
+
+        function updateQItem(q) {
+            const fill = document.getElementById('qf-' + q.id);
+            if (fill) fill.style.width = q.progress + '%';
+        }
+
+        function removeQItem(id) {
+            uploadQueue = uploadQueue.filter(q => q.id !== id);
+            renderQueue();
+        }
+
+        async function startUpload() {
+            const pending = uploadQueue.filter(q => q.status === 'pending');
+            document.getElementById('btn-upload-all').disabled = true;
+            let done = 0, failed = 0;
+
+            for (const q of pending) {
+                q.status = 'uploading';
+                renderQueue();
+                try {
+                    const result = await uploadFile(q);
+                    q.status = 'done';
+                    q.progress = 100;
+                    images.unshift(result);
+                    filtered = [...images];
+                    done++;
+                } catch (e) {
+                    q.status = 'error';
+                    failed++;
+                }
+                renderQueue();
+            }
+
+            updateStats();
+            if (done) toast(done + ' image' + (done > 1 ? 's' : '') + ' uploaded successfully!');
+            if (failed) toast(failed + ' upload(s) failed.', true);
+        }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  NAVIGATION                          ║
+        // ╚══════════════════════════════════════╝
+        function switchPanel(name) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.panel === name));
+        }
+
+        function goToUpload() { switchPanel('upload'); }
+
+        function switchScreen(name) {
+            document.getElementById('auth-screen').classList.toggle('active', name === 'auth');
+            document.getElementById('app-screen').classList.toggle('active', name === 'app');
+        }
+
+        function showView(name) {
+            document.querySelectorAll('.form-view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+        }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  SETTINGS                            ║
+        // ╚══════════════════════════════════════╝
+        function saveBaseUrl() {
+            API_BASE = document.getElementById('baseurl-input').value.trim().replace(/\/$/, '');
+            localStorage.setItem('api_base', API_BASE);
+            document.getElementById('s-baseurl').textContent = API_BASE;
+            toast('Base URL saved: ' + API_BASE);
+        }
+
+
+        // ╔══════════════════════════════════════╗
+        // ║  UTILITIES                           ║
+        // ╚══════════════════════════════════════╝
+        const v = id => document.getElementById(id).value.trim();
+
+        function showAlert(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg; el.style.display = 'block';
+        }
+
+        function hideAlert(id) { document.getElementById(id).style.display = 'none'; }
+
+        function btnLoad(id, loading) {
+            document.getElementById(id).classList.toggle('loading', loading);
+            document.getElementById(id).disabled = loading;
+        }
+
+        function showLoader(msg = 'Loading…') {
+            document.getElementById('loader-msg').textContent = msg;
+            document.getElementById('loader').classList.add('visible');
+        }
+
+        function hideLoader() { document.getElementById('loader').classList.remove('visible'); }
+
+        function toast(msg, isErr = false) {
+            const el = document.createElement('div');
+            el.className = 'toast' + (isErr ? ' err' : '');
+            el.innerHTML = `<div class="toast-dot"></div><span>${msg}</span>`;
+            document.getElementById('toasts').appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        function fmtSize(bytes) {
+            if (!bytes) return '0 B';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    </script>
+</body>
+
+</html>
